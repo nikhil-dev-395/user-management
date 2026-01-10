@@ -1,22 +1,8 @@
-import joi from "joi";
+import bcrypt from "bcryptjs";
+import { loginSchema } from "../validation-schema/index.js";
 import ApiError from "../response-handler/api-error.js";
 import ApiResponse from "../response-handler/api-response.js";
-
-const loginSchema = joi.object({
-  email: joi.string().min(4).email().required().messages({
-    "string.empty": "name is required",
-    "string.min": "name must be more than 4 character",
-  }),
-  password: joi
-    .string()
-    .min(4)
-    .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
-    .required()
-    .messages({
-      "string.empty": "name is required",
-      "string.min": "name must be more than 4 character",
-    }),
-});
+import { User } from "../models/index.js";
 
 export const login = async (req, res, next) => {
   try {
@@ -32,7 +18,23 @@ export const login = async (req, res, next) => {
         error,
       );
     }
-    const response = new ApiResponse(200, value);
+
+    const { email, password } = value;
+    const user = await User.findOne({ email }).lean();
+    if (!user) throw new ApiError(404, "user not found");
+
+    const passwordCompare = await bcrypt.compare(password, user.password);
+    if (passwordCompare !== true) {
+      throw new ApiError(400, "incorrect password");
+    }
+
+    let info = {
+      email: user.email,
+      role: user.role,
+      id: user._id,
+    };
+    req.session.user = info;
+    const response = new ApiResponse(200, info);
     return res.status(response.statusCode).json(response);
   } catch (error) {
     next(error);
