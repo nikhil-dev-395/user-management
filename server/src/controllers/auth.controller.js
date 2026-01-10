@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
-import { loginSchema } from "../validate-schema/index.js";
-import { registerSchema } from "../validate-schema/register.schema.js";
-import ApiError from "../response-handler/api-error.js";
+import { loginSchema ,registerSchema} from "../validate-schema/index.js";
+ import ApiError from "../response-handler/api-error.js";
 import ApiResponse from "../response-handler/api-response.js";
 import { User } from "../models/index.js";
 
