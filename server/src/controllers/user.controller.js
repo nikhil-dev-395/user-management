@@ -57,13 +57,12 @@ export const createUser = async (req, res, next) => {
 
 export const getUser = async (req, res, next) => {
   try {
-    const { email } = req.params;
-    if (!email) throw new ApiError(400, "email not provided");
-    const user = await User.findOne({ email }).lean();
+    const { _id } = req.params;
+    if (!_id) throw new ApiError(400, "_id not provided");
+    const user = await User.findOne({ _id }).lean();
     logger.info({ user }, "user found");
     if (!user) throw new ApiError(409, "user not found");
     delete user.password;
-    if (env.NODE_ENV === "production") delete user._id;
     delete user.__v;
 
     const response = new ApiResponse(200, "user found", user);
@@ -115,12 +114,35 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const { email } = req.params;
-    if (!email) throw new ApiError(400, "email not provided");
-    const user = await User.findOne({ email }).lean();
+    const { _id } = req.params;
+    if (!_id) throw new ApiError(400, "_id not provided");
+    const user = await User.findOne({ _id }).lean();
     if (!user) throw new ApiError(409, "user not found");
-    await User.deleteOne({ email });
+    await User.deleteOne({ _id });
     const response = new ApiResponse(200, "user deleted successfully");
+    return res.status(response.statusCode).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllUsers = async (req, res, next) => {
+  try {
+    let { page } = req.params;
+    const limit = 5;
+    page = Number(page);
+    let skip = (page - 1) * limit;
+    const count = await User.countDocuments();
+    if (count === 0) {
+      throw new ApiError(404, "no users present in db");
+    }
+    const users = await User.find({}).skip(skip).limit(limit).lean();
+    logger.info(users.length, "users found");
+    if (!users.length) throw new ApiError(409, "user not found");
+    delete users.password;
+    delete users.__v;
+
+    const response = new ApiResponse(200, "users found", users);
     return res.status(response.statusCode).json(response);
   } catch (error) {
     next(error);
