@@ -89,7 +89,10 @@ export const updateUser = async (req, res, next) => {
       );
     }
     let { name, email, password, status } = value;
-    const hashPassword = await bcrypt.hash(password, 10);
+    let hashPassword;
+    if (password && password.trim() !== "") {
+      hashPassword = await bcrypt.hash(password, 10);
+    }
 
     let user = await User.findOneAndUpdate(
       { _id },
