@@ -8,7 +8,7 @@ import env from "./src/config/env.js";
 import logger from "./src/utils/logger.utils.js";
 import connectDB from "./src/db/connection.js";
 import ApiResponse from "./src/response-handler/api-response.js";
-import { authRouter } from "./src/routes/auth.route.js";
+import { authRouter, userRouter } from "./src/routes/index.js";
 import ApiError from "./src/response-handler/api-error.js";
 const app = express();
 
@@ -39,6 +39,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 app.get("/", (req, res) => {
   const response = new ApiResponse(200, "server is running...");

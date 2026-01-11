@@ -1,3 +1,10 @@
 import { loginSchema } from "./login.schema.js";
 import { registerSchema } from "./register.schema.js";
-export { loginSchema, registerSchema };
+import { userSchema, getUserSchema, updateUserSchema } from "./user.schema.js";
+export {
+  loginSchema,
+  registerSchema,
+  userSchema,
+  getUserSchema,
+  updateUserSchema,
+};
