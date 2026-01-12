@@ -1,16 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_BASE_URL } from "../utils/constant";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function UsersTable() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /* =======================
-     Fetch all users
-  ======================== */
+  const navigate = useNavigate();
   const fetchData = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/user/all`, {
@@ -19,6 +17,9 @@ export default function UsersTable() {
       setUsers(response.data.data);
     } catch (err) {
       console.error(err);
+      if (err.response?.status === 401) {
+        navigate("/login");
+      }
       setError("Failed to fetch users");
     } finally {
       setLoading(false);
@@ -29,9 +30,9 @@ export default function UsersTable() {
     fetchData();
   }, []);
 
-  /* =======================
+  /*
      Delete user handler
-  ======================== */
+ */
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this user?"
@@ -42,10 +43,11 @@ export default function UsersTable() {
       await axios.delete(`${API_BASE_URL}/api/user/${id}`, {
         withCredentials: true,
       });
-
-      // ✅ Update UI immediately after delete
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
     } catch (err) {
+      if (err.response?.status === 401) {
+        navigate("/login");
+      }
       alert(err.response?.data?.message || "Delete failed");
     }
   };
@@ -54,7 +56,7 @@ export default function UsersTable() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="px-4 py-5 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="sm:flex sm:items-center sm:justify-between">
         <div>
@@ -100,11 +102,6 @@ export default function UsersTable() {
                     {/* Name */}
                     <td className="whitespace-nowrap py-4 pl-4 pr-3">
                       <div className="flex items-center gap-4">
-                        <img
-                          className="h-10 w-10 rounded-full"
-                          src={user.image}
-                          alt={user.name}
-                        />
                         <div>
                           <div className="font-medium text-gray-900">
                             {user.name}

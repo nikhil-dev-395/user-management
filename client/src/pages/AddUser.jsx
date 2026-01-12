@@ -49,6 +49,9 @@ export const AddUser = () => {
 
       navigate("/");
     } catch (err) {
+      if (err.response?.status === 401) {
+        navigate("/login");
+      }
       setError(err.response?.data?.message || "Failed to add user");
     } finally {
       setLoading(false);

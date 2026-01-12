@@ -39,6 +39,9 @@ export const EditUser = () => {
       } catch (err) {
         console.log(err);
         setError("Failed to load user");
+        if (err.response?.status === 401) {
+          navigate("/login");
+        }
       } finally {
         setLoading(false);
       }
@@ -165,7 +168,7 @@ export const EditUser = () => {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-white"
+              className="block w-full rounded-md  bg-slate-900 px-3 py-1.5 text-white"
             >
               <option value="active">active</option>
               <option value="inactive">inactive</option>
@@ -181,9 +184,11 @@ export const EditUser = () => {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-white"
+              className="block w-full rounded-md bg-slate-900 px-3 py-1.5 text-white"
             >
-              <option value="admin">admin</option>
+              <option value="admin" className="bg-amber-950">
+                admin
+              </option>
               <option value="user">user</option>
             </select>
           </div>
