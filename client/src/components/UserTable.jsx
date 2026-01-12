@@ -52,6 +52,22 @@ export default function UsersTable() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${API_BASE_URL}/api/auth/logout`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      alert("Logout failed. Please try again.");
+    }
+  };
+
   if (loading) return <div>Loading users...</div>;
   if (error) return <div>{error}</div>;
 
@@ -68,6 +84,13 @@ export default function UsersTable() {
         >
           Add user
         </Link>
+
+        <button
+          onClick={handleLogout}
+          className="mt-4 sm:mt-0 ml-4 inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500"
+        >
+          Logout
+        </button>
       </div>
 
       {/* Table */}

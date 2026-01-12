@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import { loginSchema ,registerSchema} from "../validate-schema/index.js";
- import ApiError from "../response-handler/api-error.js";
+import { loginSchema, registerSchema } from "../validate-schema/index.js";
+import ApiError from "../response-handler/api-error.js";
 import ApiResponse from "../response-handler/api-response.js";
 import { User } from "../models/index.js";
 
@@ -76,6 +76,22 @@ export const register = async (req, res, next) => {
     req.session.user = info;
     const response = new ApiResponse(200, info);
     return res.status(response.statusCode).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const logout = async (req, res, next) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        return next(new ApiError(500, "Failed to logout", err));
+      }
+      res.clearCookie("connect.sid");
+
+      const response = new ApiResponse(200, "Logged out successfully");
+      return res.status(response.statusCode).json(response);
+    });
   } catch (error) {
     next(error);
   }
